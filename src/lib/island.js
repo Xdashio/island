@@ -10,8 +10,10 @@ import { MediaCard } from './card.js';
 import { cardPosition } from './geometry.js';
 import { MediaWatcher } from './media.js';
 import { IslandPill } from './pill.js';
+import { seekPosition } from './progress.js';
 import { ThemeOverride } from './style.js';
 import { themeCss } from './theme.js';
+import { ProgressTracker } from './tracker.js';
 
 // Hover intent: a short exit does not close the card. The open delay is a setting (hover-delay).
 const CLOSE_DELAY_MS = 260;
@@ -40,6 +42,7 @@ export class Island {
         this._artFallback = null;
         this._artCancellable = null;
         this._timerId = 0;
+        this._trackKey = null;
 
         this._pill = new IslandPill(dateMenu);
         this._pill.setParts(this._parts());
@@ -51,7 +54,11 @@ export class Island {
             onPrevious: () => this._client?.previous(),
             onPlayPause: () => this._client?.playPause(),
             onNext: () => this._client?.next(),
+            onSeek: fraction => this._seek(fraction),
+            // The pointer may have left the card during the drag
+            onDragEnd: () => this._onHoverChanged(),
         });
+        this._tracker = new ProgressTracker(position => this._showPosition(position));
 
         for (const actor of [this._pill.art, this._pill.meter, this._card.actor])
             actor.connect('notify::hover', () => this._onHoverChanged());
@@ -65,7 +72,8 @@ export class Island {
         Main.overview.connectObject('showing', () => this._closeCard(), this);
         settings.connectObject('changed', (_settings, key) => this._onSettingChanged(key), this);
 
-        this._watcher = new MediaWatcher((state, client) => this._onMedia(state, client), resolveApp);
+        this._watcher = new MediaWatcher((state, client) => this._onMedia(state, client), resolveApp,
+            position => this._showPosition(position));
         // Last, so a failure above never leaves the override stylesheet loaded
         this._theme = new ThemeOverride();
         this._theme.apply(this._themeCss());
@@ -74,6 +82,7 @@ export class Island {
     destroy() {
         this._clearTimer();
         this._artCancellable?.cancel();
+        this._tracker.destroy();
         this._watcher.destroy();
         this._settings.disconnectObject(this);
         this._dateMenu.menu.disconnectObject(this);
@@ -121,6 +130,13 @@ export class Island {
         this._client = client;
         this._pill.setMedia(state);
         this._card.update(state);
+        // A new track starts the bar from zero until the first position read arrives
+        const trackKey = state ? `${state.id}\n${state.title}\n${state.length}` : null;
+        if (trackKey !== this._trackKey) {
+            this._trackKey = trackKey;
+            this._showPosition(0);
+        }
+        this._tracker.follow(client, state);
         if (!state)
             this._closeCard();
         this._setArt(state, client?.app?.gicon ?? null);
@@ -142,6 +158,21 @@ export class Island {
         });
     }
 
+    _showPosition(positionUs) {
+        this._card.setPosition(positionUs);
+    }
+
+    _seek(fraction) {
+        const state = this._state;
+        if (!state?.canSeek || !this._client)
+            return;
+        const target = seekPosition(fraction, state.length);
+        this._client.seekTo(target, state.trackId);
+        // Shown straight away; the player's Seeked signal or the next read corrects it
+        this._tracker.deferRead();
+        this._showPosition(target);
+    }
+
     _clearTimer() {
         if (this._timerId)
             GLib.source_remove(this._timerId);
@@ -158,7 +189,7 @@ export class Island {
     }
 
     _onHoverChanged() {
-        const hovered = this._pill.art.hover || this._pill.meter.hover || this._card.actor.hover;
+        const hovered = this._pill.art.hover || this._pill.meter.hover || this._card.actor.hover || this._card.isDragging;
         if (hovered === this._card.isOpen || (hovered && !this._settings.get_boolean('open-on-hover'))) {
             this._clearTimer();
             return;
@@ -202,10 +233,12 @@ export class Island {
             monitorX: monitor.x,
             monitorWidth: monitor.width,
         }));
+        this._tracker.start();
     }
 
     _closeCard() {
         this._clearTimer();
+        this._tracker.stop();
         this._card.close();
     }
 }

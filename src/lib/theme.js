@@ -77,6 +77,7 @@ ${clock} .xi-pill .messages-indicator { color: ${hex}; }
 .xi-card-art { background-color: ${tint(0.16)}; }
 .xi-card-art-icon { color: ${hex}; }
 .xi-card-app { color: ${hex}; }
+.slider.xi-card-slider { -barlevel-active-background-color: ${hex}; }
 .xi-control.xi-control-play { color: ${hex}; background-color: ${tint(0.16)}; }
 .xi-control.xi-control-play:hover { background-color: ${tint(0.28)}; }
 .xi-control:focus,

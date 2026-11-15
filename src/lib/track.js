@@ -1,5 +1,6 @@
 // Turns a raw MPRIS snapshot into what the island shows. Pure: runs under node --test.
 import { rankPlayer } from './pick.js';
+import { usableTrackId } from './progress.js';
 
 const UNKNOWN_TITLE = 'Unknown title';
 
@@ -36,6 +37,7 @@ export function mediaState(snapshot, appName) {
     if (rankPlayer(snapshot) === 0)
         return null;
     const { title, subtitle } = trackInfo(snapshot);
+    const length = Number.isFinite(snapshot.length) && snapshot.length > 0 ? Math.round(snapshot.length) : 0;
     return {
         id: snapshot.id,
         title,
@@ -46,5 +48,9 @@ export function mediaState(snapshot, appName) {
         canGoNext: snapshot.canGoNext === true,
         canGoPrevious: snapshot.canGoPrevious === true,
         canPlayPause: snapshot.canPlay === true || snapshot.canPause === true,
+        // Microseconds; 0 for live streams, which get no progress bar
+        length,
+        canSeek: snapshot.canSeek === true && length > 0,
+        trackId: usableTrackId(snapshot.trackId),
     };
 }

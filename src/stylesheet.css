@@ -149,6 +149,35 @@
   font-size: 9pt;
 }
 
+/* Progress: GNOME's slider, thinned down from WhiteSur's 20 px bar */
+.xi-card-progress {
+  spacing: 2px;
+}
+
+.slider.xi-card-slider {
+  height: 14px;
+  color: #c0caf5; /* the handle */
+  -barlevel-height: 4px;
+  -barlevel-background-color: rgba(192, 202, 245, 0.16);
+  -barlevel-active-background-color: #7aa2f7;
+  -barlevel-border-width: 0;
+  -barlevel-border-color: transparent;
+  -barlevel-active-border-color: transparent;
+  -slider-handle-radius: 6px;
+  -slider-handle-border-width: 0;
+}
+
+/* A player that cannot seek gets a plain progress line, no handle */
+.slider.xi-card-slider:insensitive {
+  color: transparent;
+}
+
+.xi-card-time {
+  color: rgba(169, 177, 214, 0.8);
+  font-size: 8pt;
+  font-feature-settings: "tnum";
+}
+
 .xi-card-controls {
   spacing: 18px;
 }

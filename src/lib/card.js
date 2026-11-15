@@ -1,10 +1,11 @@
-// The card that drops from the pill: cover, title, artist, app and media controls.
+// The card that drops from the pill: cover, title, artist, app, progress and media controls.
 import Clutter from 'gi://Clutter';
 import Pango from 'gi://Pango';
 import St from 'gi://St';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
 import { Cover } from './pill.js';
+import { SeekBar } from './seekbar.js';
 
 const OPEN_MS = 160;
 const CLOSE_MS = 120;
@@ -17,7 +18,7 @@ const ellipsized = styleClass => {
 };
 
 export class MediaCard {
-    /** handlers: {onRaise, onPrevious, onPlayPause, onNext} */
+    /** handlers: {onRaise, onPrevious, onPlayPause, onNext, onSeek, onDragEnd} */
     constructor(handlers) {
         this._open = false;
 
@@ -43,6 +44,7 @@ export class MediaCard {
         this._playPause = this._control('media-playback-start-symbolic', 'Play or pause', handlers.onPlayPause);
         this._playPause.add_style_class_name('xi-control-play');
         this._next = this._control('media-skip-forward-symbolic', 'Next', handlers.onNext);
+        this._seekBar = new SeekBar({ onSeek: handlers.onSeek, onDragEnd: handlers.onDragEnd });
         const controls = new St.BoxLayout({ style_class: 'xi-card-controls', x_align: Clutter.ActorAlign.CENTER });
         [this._previous, this._playPause, this._next].forEach(button => controls.add_child(button));
 
@@ -55,6 +57,7 @@ export class MediaCard {
             opacity: 0,
         });
         this.actor.add_child(head);
+        this.actor.add_child(this._seekBar.actor);
         this.actor.add_child(controls);
         Main.layoutManager.addTopChrome(this.actor);
     }
@@ -63,7 +66,17 @@ export class MediaCard {
         return this._open;
     }
 
+    /** True while the progress bar is being dragged, so the card stays open past its edge. */
+    get isDragging() {
+        return this._seekBar.isDragging;
+    }
+
+    setPosition(positionUs) {
+        this._seekBar.setPosition(positionUs);
+    }
+
     destroy() {
+        this._seekBar.destroy();
         this.actor.remove_all_transitions();
         Main.layoutManager.removeChrome(this.actor);
         this.actor.destroy();
@@ -93,6 +106,7 @@ export class MediaCard {
         this._next.reactive = state.canGoNext;
         this._playPause.reactive = state.canPlayPause;
         this._playPause.child.icon_name = state.playing ? 'media-playback-pause-symbolic' : 'media-playback-start-symbolic';
+        this._seekBar.setTrack(state.length, state.canSeek);
     }
 
     /** Preferred width, for centring under the pill before it is shown. */
@@ -115,6 +129,7 @@ export class MediaCard {
     }
 
     close() {
+        this._seekBar.cancelDrag();
         if (!this._open)
             return;
         this._open = false;

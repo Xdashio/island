@@ -55,6 +55,9 @@ describe('mediaState', () => {
         canGoPrevious: false,
         canPlay: true,
         canPause: true,
+        canSeek: true,
+        length: 2531654144,
+        trackId: '/com/brave/MediaPlayer2/TrackList/Track49',
     };
 
     test('builds what the island shows', () => {
@@ -68,7 +71,23 @@ describe('mediaState', () => {
             canGoNext: true,
             canGoPrevious: false,
             canPlayPause: true,
+            length: 2531654144,
+            canSeek: true,
+            trackId: '/com/brave/MediaPlayer2/TrackList/Track49',
         });
+    });
+
+    test('a stream without a length shows no progress and cannot seek', () => {
+        const state = mediaState({ ...snapshot, length: undefined, trackId: '/org/mpris/MediaPlayer2/TrackList/NoTrack' }, '');
+        assert.equal(state.length, 0);
+        assert.equal(state.canSeek, false);
+        assert.equal(state.trackId, null);
+    });
+
+    test('a player that cannot seek still shows its length', () => {
+        const state = mediaState({ ...snapshot, canSeek: false }, '');
+        assert.equal(state.length, 2531654144);
+        assert.equal(state.canSeek, false);
     });
 
     test('drops a cover it will not load, so the app icon shows', () => {

@@ -9,7 +9,7 @@ It is tuned for the WhiteSur shell theme (28 px bar) and for low-end graphics su
 - **Fitted clock pill.** GNOME's own clock in a 22 px pill, centred both ways in the 28 px bar with 3 px of air above and below and even padding. Digits are tabular, so a clock with seconds does not make the pill jiggle. Clicking the clock still opens the calendar and notifications.
 - **Tokyo Night look.** A translucent dark fill (`#1a1b26`) with a `#7aa2f7` accent and a hairline border. WhiteSur keeps white bar text in light and dark mode, so the pill is the same in both.
 - **Now playing.** While a player (Brave, Firefox, VLC, Rhythmbox, any MPRIS app) has a track, its cover sits on the left of the clock and a three-bar level meter on the right. The cover and meter go grey when paused.
-- **Media card.** Hover over the cover or the meter to drop a card with the cover, title, artist, app, and previous, play or pause, and next buttons.
+- **Media card.** Hover over the cover or the meter to drop a card with the cover, title, artist, app, a progress bar with elapsed and remaining time, and previous, play or pause, and next buttons. Drag or click the bar to jump; arrow keys and scrolling on it work too.
 - **Notifications.** GNOME's indicator stays inside the pill: unread notifications show in the accent colour, Do Not Disturb shows a grey bell.
 - **Settings panel.** Accent colour, pill darkness, which parts show, how the card opens, and GNOME's clock options in one place.
 
@@ -19,6 +19,7 @@ It is tuned for the WhiteSur shell theme (28 px bar) and for low-end graphics su
 | Left click | Opens the card, or brings the player to the front when the card is open |
 | Middle click | Play or pause |
 | Click the title in the card | Brings the player to the front |
+| Drag, click or scroll the progress bar | Jumps to that point in the track |
 
 ## Requirements
 
@@ -85,7 +86,7 @@ The clock goes back to normal as soon as the extension is disabled.
 
 - **Covers come only from local files.** The cover is checked first: a regular file (symlinks are not followed), at most 4 MiB, and a PNG, JPEG, GIF, WebP or BMP header of at most 2048 px a side. Then it is shrunk to a 96 px copy in `~/.cache/island-xdashio`, and that copy is what the shell displays. A huge image, `/dev/zero`, a FIFO or a broken file shows the app icon instead and cannot freeze the shell. The cache keeps the newest 40 covers.
 - **No network.** Web covers (Spotify sends `https://` covers) are never downloaded; those players show their app icon.
-- **No background work when idle.** The meter steps about six times a second only while something plays and the bar is visible. The players are watched through D-Bus signals, not polling.
+- **No background work when idle.** The meter steps about six times a second only while something plays and the bar is visible. The players are watched through D-Bus signals; the only polling is one position read a second, while the card is open and the track is playing.
 
 ## Development
 
@@ -100,10 +101,13 @@ src/
   lib/card.js         the media card
   lib/media.js        MPRIS players over D-Bus
   lib/art.js          safe cover loading and the cover cache
+  lib/seekbar.js      the card's progress bar (GNOME's slider)
+  lib/tracker.js      reads the position while the card is open
   lib/pick.js         which player to show (pure)
   lib/track.js        what to show for a player (pure)
   lib/geometry.js     card placement, meter levels, image checks (pure)
   lib/theme.js        accent and pill darkness to an override stylesheet (pure)
+  lib/progress.js     time labels, bar position and seek targets (pure)
   lib/style.js        loads that override into the shell's theme
   lib/prefs-page.js   the settings page, built so it can be tested outside the Extensions app
 tests/                node --test unit tests for the pure modules

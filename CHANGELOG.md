@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.0 (2026-11-15)
+
+- A progress bar in the media card, with elapsed and remaining time. Drag or click it to jump in the track; arrow keys and scrolling on it work too. It follows jumps made in the player itself.
+- The position is read once a second only while the card is open and the track plays. Live streams get no bar, and players that cannot seek get a plain progress line.
+
 ## 1.1.0 (2026-11-15)
 
 - A settings panel: accent colour (with a reset to Tokyo Night blue), pill darkness, show or hide the cover and the level meter, open the card on hover or only on click, the hover delay, and GNOME's own clock options (date, weekday, seconds).

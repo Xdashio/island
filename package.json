@@ -1,12 +1,12 @@
 {
   "name": "island",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
   "description": "A fitted top bar island for GNOME Shell 46: clock pill with now playing and media controls",
   "type": "module",
   "scripts": {
     "test": "node --test tests/",
-    "coverage": "node --test --experimental-test-coverage --test-coverage-include=src/lib/pick.js --test-coverage-include=src/lib/track.js --test-coverage-include=src/lib/geometry.js --test-coverage-include=src/lib/theme.js tests/",
+    "coverage": "node --test --experimental-test-coverage --test-coverage-include=src/lib/pick.js --test-coverage-include=src/lib/track.js --test-coverage-include=src/lib/geometry.js --test-coverage-include=src/lib/theme.js --test-coverage-include=src/lib/progress.js tests/",
     "check": "for f in src/*.js src/lib/*.js tests/smoke/*.js; do node --check \"$f\" || exit 1; done",
     "smoke": "scripts/smoke.sh",
     "pack": "scripts/pack.sh"
