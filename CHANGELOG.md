@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.1 (2026-11-15)
+
+- Drop `background-position: center` from the cover styles. GNOME's style engine does not support it and logged a warning each time a cover was drawn; covers stay centred, since St centres them by default.
+
 ## 1.3.0 (2026-11-15)
 
 - Scroll on the cover to go to the next or previous track. In a single video that cannot skip (a YouTube video, for example) it jumps ten seconds instead. One skip per wheel notch or touchpad swipe; momentum is ignored.

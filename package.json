@@ -1,6 +1,6 @@
 {
   "name": "island",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "private": true,
   "description": "A fitted top bar island for GNOME Shell 46: clock pill with now playing and media controls",
   "type": "module",

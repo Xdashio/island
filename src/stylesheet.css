@@ -53,7 +53,7 @@
   color: rgba(192, 202, 245, 0.6);
 }
 
-/* Cover */
+/* Cover. St centres a cover-sized background on its own; it does not support background-position: center */
 .xi-art-button {
   padding: 0;
   border-radius: 8px;
@@ -64,7 +64,6 @@
   height: 16px;
   border-radius: 8px;
   background-size: cover;
-  background-position: center;
   background-color: rgba(122, 162, 247, 0.22);
 }
 
@@ -119,7 +118,6 @@
   height: 48px;
   border-radius: 10px;
   background-size: cover;
-  background-position: center;
   background-color: rgba(122, 162, 247, 0.16);
 }
 
