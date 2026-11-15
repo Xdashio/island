@@ -1,0 +1,191 @@
+/* Island: the top bar clock as a fitted pill.
+ * The WhiteSur bar is 28 px tall in light and dark mode, always with white text, so the pill is
+ * dark in both modes: 22 px tall with 3 px of air above and below.
+ * Colours are Tokyo Night: background #1a1b26, text #c0caf5, accent #7aa2f7.
+ * Selectors start at #panel .panel-button.clock-display so they outrank WhiteSur's clock rules. */
+
+/* Pill */
+#panel .panel-button.clock-display .xi-pill {
+  height: 20px; /* content box; the 1 px border makes it 22 px */
+  padding: 0 10px;
+  spacing: 8px;
+  border-radius: 11px;
+  border: 1px solid rgba(192, 202, 245, 0.1);
+  background-color: rgba(26, 27, 38, 0.62);
+  transition-duration: 150ms;
+}
+
+/* With media the 16 px cover sits 3 px from the edge, concentric with the 11 px corner */
+#panel .panel-button.clock-display .xi-pill.xi-has-media {
+  padding: 0 9px 0 2px;
+}
+
+#panel .panel-button.clock-display:hover .xi-pill {
+  background-color: rgba(26, 27, 38, 0.74);
+  border-color: rgba(192, 202, 245, 0.18);
+}
+
+#panel .panel-button.clock-display:active .xi-pill,
+#panel .panel-button.clock-display:checked .xi-pill {
+  background-color: rgba(26, 27, 38, 0.8);
+  border-color: rgba(122, 162, 247, 0.65);
+}
+
+/* Clock: the pill draws the hover and open states, so the label's own ones are switched off */
+#panel .panel-button.clock-display .xi-pill .clock-display-box {
+  spacing: 6px !important;
+}
+
+#panel .panel-button.clock-display .xi-pill .clock {
+  padding: 0 !important;
+  background-color: transparent !important;
+  font-feature-settings: "tnum";
+}
+
+/* Notification indicator: unread in the accent, Do Not Disturb in quiet grey */
+#panel .panel-button.clock-display .xi-pill .messages-indicator {
+  icon-size: 14px;
+  color: #7aa2f7;
+}
+
+#panel .panel-button.clock-display .xi-pill .messages-indicator.xi-dnd {
+  color: rgba(192, 202, 245, 0.6);
+}
+
+/* Cover */
+.xi-art-button {
+  padding: 0;
+  border-radius: 8px;
+}
+
+.xi-art {
+  width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  background-size: cover;
+  background-position: center;
+  background-color: rgba(122, 162, 247, 0.22);
+}
+
+.xi-art-icon {
+  icon-size: 10px;
+  color: #7aa2f7;
+}
+
+/* Level meter */
+.xi-meter-button {
+  padding: 0 1px;
+}
+
+.xi-meter {
+  spacing: 2px;
+}
+
+.xi-meter-bar {
+  width: 3px;
+  height: 12px;
+  border-radius: 1.5px;
+  background-color: #7aa2f7;
+}
+
+.xi-pill.xi-paused .xi-meter-bar {
+  background-color: rgba(192, 202, 245, 0.45);
+}
+
+/* Card */
+.xi-card {
+  width: 280px;
+  padding: 12px;
+  spacing: 10px;
+  border-radius: 16px;
+  border: 1px solid rgba(192, 202, 245, 0.1);
+  background-color: rgba(26, 27, 38, 0.94);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  color: #c0caf5;
+}
+
+.xi-card-head {
+  padding: 0;
+  border-radius: 10px;
+}
+
+.xi-card-row {
+  spacing: 12px;
+}
+
+.xi-card-art {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background-size: cover;
+  background-position: center;
+  background-color: rgba(122, 162, 247, 0.16);
+}
+
+.xi-card-art-icon {
+  icon-size: 22px;
+  color: #7aa2f7;
+}
+
+.xi-card-text {
+  spacing: 2px;
+}
+
+.xi-card-app {
+  color: #7aa2f7;
+  font-size: 8pt;
+  font-weight: bold;
+}
+
+.xi-card-title {
+  color: #c0caf5;
+  font-size: 10pt;
+  font-weight: bold;
+}
+
+.xi-card-subtitle {
+  color: #a9b1d6;
+  font-size: 9pt;
+}
+
+.xi-card-controls {
+  spacing: 18px;
+}
+
+.xi-control {
+  padding: 6px;
+  border-radius: 999px;
+  color: #c0caf5;
+  transition-duration: 120ms;
+}
+
+.xi-control StIcon {
+  icon-size: 16px;
+}
+
+.xi-control:hover {
+  background-color: rgba(192, 202, 245, 0.1);
+}
+
+.xi-control:active {
+  background-color: rgba(192, 202, 245, 0.18);
+}
+
+.xi-control:insensitive {
+  color: rgba(192, 202, 245, 0.28);
+}
+
+.xi-control.xi-control-play {
+  padding: 8px;
+  color: #7aa2f7;
+  background-color: rgba(122, 162, 247, 0.16);
+}
+
+.xi-control.xi-control-play:hover {
+  background-color: rgba(122, 162, 247, 0.28);
+}
+
+.xi-control:focus,
+.xi-card-head:focus {
+  box-shadow: inset 0 0 0 2px rgba(122, 162, 247, 0.65);
+}

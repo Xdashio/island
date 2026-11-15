@@ -1,0 +1,31 @@
+name: test
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    # Ubuntu 24.04 ships gjs 1.80, the same as GNOME 46
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Syntax check
+        run: npm run check
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Install gjs and gdk-pixbuf
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends gjs gir1.2-gdkpixbuf-2.0
+
+      - name: Cover smoke tests
+        run: npm run smoke
