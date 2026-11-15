@@ -6,6 +6,7 @@ UUID="island@xdashio"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 DEST="${XDG_DATA_HOME:-$HOME/.local/share}/gnome-shell/extensions/$UUID"
 
+glib-compile-schemas --strict "$ROOT/src/schemas"
 mkdir -p "$DEST"
 rsync -a --delete "$ROOT/src/" "$DEST/"
 echo "Installed to $DEST"

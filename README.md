@@ -11,6 +11,7 @@ It is tuned for the WhiteSur shell theme (28 px bar) and for low-end graphics su
 - **Now playing.** While a player (Brave, Firefox, VLC, Rhythmbox, any MPRIS app) has a track, its cover sits on the left of the clock and a three-bar level meter on the right. The cover and meter go grey when paused.
 - **Media card.** Hover over the cover or the meter to drop a card with the cover, title, artist, app, and previous, play or pause, and next buttons.
 - **Notifications.** GNOME's indicator stays inside the pill: unread notifications show in the accent colour, Do Not Disturb shows a grey bell.
+- **Settings panel.** Accent colour, pill darkness, which parts show, how the card opens, and GNOME's clock options in one place.
 
 | On the cover or meter | Does |
 |---|---|
@@ -46,15 +47,36 @@ gnome-extensions install --force dist/island@xdashio.shell-extension.zip
 
 If another extension also changes the clock (for example another "dynamic island"), disable it first.
 
-## Customize
+## Settings
 
-All colours and sizes are in [`src/stylesheet.css`](src/stylesheet.css). The pill is `.xi-pill`, the card is `.xi-card`, and the accent is `#7aa2f7` (`rgba(122, 162, 247, ...)` where it is translucent). Edit, run `scripts/install.sh`, and reload the shell.
+Open them from the Extensions app, or with:
+
+```bash
+gnome-extensions prefs island@xdashio
+```
+
+| Setting | Default | What it does |
+|---|---|---|
+| Accent colour | Tokyo Night blue `#7aa2f7` | Level meter, unread notifications, play button and the open pill border. The undo button goes back to the default. |
+| Pill darkness | 62 % | How opaque the pill is; lower lets more of the bar show through. Hover and the open calendar darken it a little more. |
+| Show the cover | On | The cover on the left of the clock. |
+| Show the level meter | On | The meter on the right of the clock. |
+| Open on hover | On | Off means the card opens only with a click. |
+| Hover delay | 140 ms | How long the pointer rests before the card opens. |
+| Show the date, weekday, seconds | GNOME's | GNOME's own clock options, the same ones as in GNOME Settings. |
+
+Changes apply straight away, without reloading the shell.
+
+## Customize further
+
+Sizes, spacing and the rest of the look are in [`src/stylesheet.css`](src/stylesheet.css): the pill is `.xi-pill` and the card is `.xi-card`. The accent colour and pill darkness come from the settings through [`src/lib/theme.js`](src/lib/theme.js), which writes a small override stylesheet with the same selectors. Edit, run `scripts/install.sh`, and reload the shell.
 
 ## Uninstall
 
 ```bash
 gnome-extensions disable island@xdashio
 rm -r ~/.local/share/gnome-shell/extensions/island@xdashio ~/.cache/island-xdashio
+dconf reset -f /org/gnome/shell/extensions/island/
 ```
 
 The clock goes back to normal as soon as the extension is disabled.
@@ -70,8 +92,10 @@ The clock goes back to normal as soon as the extension is disabled.
 ```text
 src/
   extension.js        enable and disable
+  prefs.js            the settings window (Extensions app)
   stylesheet.css      the whole look
-  lib/island.js       ties pill, card and player watcher together; hover and click
+  schemas/            the settings schema
+  lib/island.js       ties pill, card, player watcher and settings together; hover and click
   lib/pill.js         wraps GNOME's clock in the pill; cover and meter
   lib/card.js         the media card
   lib/media.js        MPRIS players over D-Bus
@@ -79,15 +103,18 @@ src/
   lib/pick.js         which player to show (pure)
   lib/track.js        what to show for a player (pure)
   lib/geometry.js     card placement, meter levels, image checks (pure)
+  lib/theme.js        accent and pill darkness to an override stylesheet (pure)
+  lib/style.js        loads that override into the shell's theme
+  lib/prefs-page.js   the settings page, built so it can be tested outside the Extensions app
 tests/                node --test unit tests for the pure modules
-tests/smoke/          gjs smoke test for cover loading with hostile inputs
+tests/smoke/          gjs smoke tests: cover loading with hostile inputs, and every settings row
 ```
 
 ```bash
 npm run check      # syntax check
 npm test           # unit tests
 npm run coverage   # unit tests with coverage
-npm run smoke      # cover smoke tests (needs gjs and gdk-pixbuf)
+npm run smoke      # smoke tests (needs gjs, GTK 4 and libadwaita; use xvfb-run without a display)
 npm run pack       # build dist/island@xdashio.shell-extension.zip
 ```
 

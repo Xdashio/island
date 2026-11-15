@@ -24,8 +24,11 @@ jobs:
       - name: Unit tests
         run: npm test
 
-      - name: Install gjs and gdk-pixbuf
-        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends gjs gir1.2-gdkpixbuf-2.0
+      - name: Install gjs, GTK 4 and libadwaita
+        run: >
+          sudo apt-get update && sudo apt-get install -y --no-install-recommends
+          gjs gir1.2-gdkpixbuf-2.0 gir1.2-gtk-4.0 gir1.2-adw-1 libglib2.0-bin
+          gsettings-desktop-schemas xvfb xauth
 
-      - name: Cover smoke tests
-        run: npm run smoke
+      - name: Smoke tests (covers and preferences)
+        run: xvfb-run -a npm run smoke

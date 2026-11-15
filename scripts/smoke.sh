@@ -1,10 +1,16 @@
 #!/usr/bin/env bash
-# Runs the gjs smoke tests. Needs gjs and gdk-pixbuf, not a running GNOME Shell.
+# Runs the gjs smoke tests. Needs gjs, gdk-pixbuf, GTK 4 and libadwaita, not a running GNOME Shell.
+# The preferences test needs a display; on a headless machine run this under xvfb-run.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-CACHE="$(mktemp -d)"
-trap 'rm -rf "$CACHE"' EXIT
+TMP="$(mktemp -d)"
+trap 'rm -rf "$TMP"' EXIT
 
-# A throwaway cache, so the smoke test never touches ~/.cache/island-xdashio
-XDG_CACHE_HOME="$CACHE" gjs -m "$ROOT/tests/smoke/art.smoke.js"
+# A throwaway cache, so the cover test never touches ~/.cache/island-xdashio
+XDG_CACHE_HOME="$TMP/cache" gjs -m "$ROOT/tests/smoke/art.smoke.js"
+
+# A throwaway schema and in-memory settings, so the preferences test never writes real settings
+mkdir -p "$TMP/schemas"
+glib-compile-schemas --strict --targetdir="$TMP/schemas" "$ROOT/src/schemas"
+GSETTINGS_BACKEND=memory ISLAND_SCHEMA_DIR="$TMP/schemas" gjs -m "$ROOT/tests/smoke/prefs.smoke.js"

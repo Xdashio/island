@@ -1,7 +1,8 @@
 /* Island: the top bar clock as a fitted pill.
  * The WhiteSur bar is 28 px tall in light and dark mode, always with white text, so the pill is
  * dark in both modes: 22 px tall with 3 px of air above and below.
- * Colours are Tokyo Night: background #1a1b26, text #c0caf5, accent #7aa2f7.
+ * Colours are Tokyo Night: background #1a1b26, text #c0caf5, accent #7aa2f7. The accent and the pill
+ * darkness are settings: lib/theme.js generates an override with the same selectors.
  * Selectors start at #panel .panel-button.clock-display so they outrank WhiteSur's clock rules. */
 
 /* Pill */
@@ -15,8 +16,8 @@
   transition-duration: 150ms;
 }
 
-/* With media the 16 px cover sits 3 px from the edge, concentric with the 11 px corner */
-#panel .panel-button.clock-display .xi-pill.xi-has-media {
+/* With a cover the 16 px cover sits 3 px from the edge, concentric with the 11 px corner */
+#panel .panel-button.clock-display .xi-pill.xi-has-cover {
   padding: 0 9px 0 2px;
 }
 

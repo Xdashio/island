@@ -10,9 +10,10 @@ import { MediaCard } from './card.js';
 import { cardPosition } from './geometry.js';
 import { MediaWatcher } from './media.js';
 import { IslandPill } from './pill.js';
+import { ThemeOverride } from './style.js';
+import { themeCss } from './theme.js';
 
-// Hover intent: a pointer passing over the pill does not open the card, a short exit does not close it
-const OPEN_DELAY_MS = 140;
+// Hover intent: a short exit does not close the card. The open delay is a setting (hover-delay).
 const CLOSE_DELAY_MS = 260;
 
 // Browsers send no DesktopEntry, so their app is found by the player's name ("Brave")
@@ -30,8 +31,9 @@ function resolveApp(desktopEntry, identity) {
 }
 
 export class Island {
-    constructor(dateMenu) {
+    constructor(dateMenu, settings) {
         this._dateMenu = dateMenu;
+        this._settings = settings;
         this._state = null;
         this._client = null;
         this._artKey = null;
@@ -40,6 +42,7 @@ export class Island {
         this._timerId = 0;
 
         this._pill = new IslandPill(dateMenu);
+        this._pill.setParts(this._parts());
         this._card = new MediaCard({
             onRaise: () => {
                 this._client?.raise();
@@ -60,18 +63,57 @@ export class Island {
                 this._closeCard();
         }, this);
         Main.overview.connectObject('showing', () => this._closeCard(), this);
+        settings.connectObject('changed', (_settings, key) => this._onSettingChanged(key), this);
 
         this._watcher = new MediaWatcher((state, client) => this._onMedia(state, client), resolveApp);
+        // Last, so a failure above never leaves the override stylesheet loaded
+        this._theme = new ThemeOverride();
+        this._theme.apply(this._themeCss());
     }
 
     destroy() {
         this._clearTimer();
         this._artCancellable?.cancel();
         this._watcher.destroy();
+        this._settings.disconnectObject(this);
         this._dateMenu.menu.disconnectObject(this);
         Main.overview.disconnectObject(this);
         this._card.destroy();
         this._pill.destroy();
+        this._theme.destroy();
+    }
+
+    _themeCss() {
+        return themeCss({
+            accent: this._settings.get_string('accent-color'),
+            pillOpacity: this._settings.get_int('pill-opacity'),
+        });
+    }
+
+    _parts() {
+        return {
+            cover: this._settings.get_boolean('show-cover'),
+            meter: this._settings.get_boolean('show-meter'),
+        };
+    }
+
+    _onSettingChanged(key) {
+        switch (key) {
+        case 'accent-color':
+        case 'pill-opacity':
+            this._theme.schedule(this._themeCss());
+            break;
+        case 'show-cover':
+        case 'show-meter':
+            this._clearTimer();
+            this._pill.setParts(this._parts());
+            break;
+        case 'open-on-hover':
+            this._clearTimer();
+            break;
+        default:
+            // hover-delay is read when the pointer arrives
+        }
     }
 
     _onMedia(state, client) {
@@ -117,11 +159,14 @@ export class Island {
 
     _onHoverChanged() {
         const hovered = this._pill.art.hover || this._pill.meter.hover || this._card.actor.hover;
-        if (hovered === this._card.isOpen) {
+        if (hovered === this._card.isOpen || (hovered && !this._settings.get_boolean('open-on-hover'))) {
             this._clearTimer();
             return;
         }
-        this._later(hovered ? OPEN_DELAY_MS : CLOSE_DELAY_MS, () => (hovered ? this._openCard() : this._closeCard()));
+        if (hovered)
+            this._later(this._settings.get_int('hover-delay'), () => this._openCard());
+        else
+            this._later(CLOSE_DELAY_MS, () => this._closeCard());
     }
 
     // Left click opens the card, or the player once the card is open (hover usually opens it first);

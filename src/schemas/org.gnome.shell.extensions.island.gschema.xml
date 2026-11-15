@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.island" path="/org/gnome/shell/extensions/island/">
+    <key name="accent-color" type="s">
+      <default>'#7aa2f7'</default>
+      <summary>Accent colour</summary>
+      <description>Colour of the level meter, unread notifications, the open pill border and the play button, as #rrggbb. Tokyo Night blue by default.</description>
+    </key>
+    <key name="pill-opacity" type="i">
+      <range min="20" max="100"/>
+      <default>62</default>
+      <summary>Pill darkness</summary>
+      <description>How opaque the pill background is, in percent. Lower lets more of the bar show through.</description>
+    </key>
+    <key name="show-cover" type="b">
+      <default>true</default>
+      <summary>Show the cover</summary>
+      <description>Show the playing track's cover on the left of the clock.</description>
+    </key>
+    <key name="show-meter" type="b">
+      <default>true</default>
+      <summary>Show the level meter</summary>
+      <description>Show the three-bar level meter on the right of the clock while media plays.</description>
+    </key>
+    <key name="open-on-hover" type="b">
+      <default>true</default>
+      <summary>Open the card on hover</summary>
+      <description>Open the media card when the pointer rests on the cover or the meter. When off, a click opens it.</description>
+    </key>
+    <key name="hover-delay" type="i">
+      <range min="0" max="1000"/>
+      <default>140</default>
+      <summary>Hover delay</summary>
+      <description>How long the pointer has to rest on the cover or the meter before the card opens, in milliseconds.</description>
+    </key>
+  </schema>
+</schemalist>

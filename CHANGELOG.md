@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.0 (2026-11-15)
+
+- A settings panel: accent colour (with a reset to Tokyo Night blue), pill darkness, show or hide the cover and the level meter, open the card on hover or only on click, the hover delay, and GNOME's own clock options (date, weekday, seconds).
+- Accent and pill darkness apply live through a generated override stylesheet, which survives light and dark theme switches.
+- A gjs smoke test that builds the settings page and checks every row is bound both ways, using in-memory settings.
+
 ## 1.0.0 (2026-11-15)
 
 First release.

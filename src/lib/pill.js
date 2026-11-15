@@ -51,6 +51,8 @@ export class IslandPill {
         this._pad = this._clockBox.get_children().find(c => c !== this._clock && c !== this._indicator) ?? null;
         this._playing = false;
         this._meterId = 0;
+        this._state = null;
+        this._parts = { cover: true, meter: true };
 
         this.cover = new Cover('xi-art', 'xi-art-icon');
         this.art = new St.Button({
@@ -113,13 +115,20 @@ export class IslandPill {
 
     /** state from mediaState(), or null for a plain clock pill. */
     setMedia(state) {
+        this._state = state;
         const hasMedia = !!state;
-        this.art.visible = hasMedia;
-        this.meter.visible = hasMedia;
+        this.art.visible = hasMedia && this._parts.cover;
+        this.meter.visible = hasMedia && this._parts.meter;
         this._playing = hasMedia && state.playing;
-        this._toggleClass(this.actor, 'xi-has-media', hasMedia);
+        this._toggleClass(this.actor, 'xi-has-cover', this.art.visible);
         this._toggleClass(this.actor, 'xi-paused', hasMedia && !state.playing);
         this._syncMeter();
+    }
+
+    /** Which media parts the settings allow: {cover, meter}. */
+    setParts(parts) {
+        this._parts = { ...parts };
+        this.setMedia(this._state);
     }
 
     _toggleClass(actor, name, on) {
@@ -135,7 +144,7 @@ export class IslandPill {
     }
 
     _syncMeter() {
-        if (this._playing && this.actor.mapped) {
+        if (this._playing && this.meter.visible && this.actor.mapped) {
             if (!this._meterId) {
                 this._meterId = GLib.timeout_add(GLib.PRIORITY_LOW, METER_STEP_MS, () => {
                     this._applyLevels(nextLevels(Math.random, true, BAR_COUNT));

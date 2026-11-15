@@ -11,7 +11,7 @@ export default class IslandExtension extends Extension {
             console.warn('island: the top bar clock is not the GNOME 46 layout, leaving it alone');
             return;
         }
-        this._island = new Island(dateMenu);
+        this._island = new Island(dateMenu, this.getSettings());
     }
 
     disable() {
