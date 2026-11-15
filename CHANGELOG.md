@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.0 (2026-11-15)
+
+- Scroll on the cover to go to the next or previous track. In a single video that cannot skip (a YouTube video, for example) it jumps ten seconds instead. One skip per wheel notch or touchpad swipe; momentum is ignored.
+- Scroll on the meter to change the system volume, with GNOME's volume pop-up, just like scrolling over the speaker icon.
+- A setting to turn scrolling off.
+
 ## 1.2.0 (2026-11-15)
 
 - A progress bar in the media card, with elapsed and remaining time. Drag or click it to jump in the track; arrow keys and scrolling on it work too. It follows jumps made in the player itself.

@@ -158,6 +158,11 @@ class MprisClient {
         });
     }
 
+    /** Jumps offsetUs forward (or back when negative) from wherever the player is. */
+    seekBy(offsetUs) {
+        this._player?.SeekAsync(offsetUs).catch(logCallError(this.busName, 'Seek'));
+    }
+
     /**
      * Jumps to targetUs: SetPosition when the track has an id, otherwise a relative Seek from a
      * fresh position read, since the last shown position may be stale.

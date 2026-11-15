@@ -95,6 +95,13 @@ function cardGroup(settings, watch) {
     return group;
 }
 
+function scrollGroup(settings) {
+    const group = new Adw.PreferencesGroup({ title: 'Scrolling' });
+    group.add(switchRow(settings, 'scroll-actions', 'Scroll on the cover and the meter',
+        'Cover: next or previous track, or ten seconds in a single video. Meter: system volume.'));
+    return group;
+}
+
 function clockGroup(interfaceSettings) {
     const group = new Adw.PreferencesGroup({
         title: 'Clock',
@@ -124,6 +131,7 @@ export function buildPreferences(window, settings, interfaceSettings) {
     const page = new Adw.PreferencesPage({ title: 'Island', icon_name: 'preferences-desktop-appearance-symbolic' });
     page.add(lookGroup(settings, watch));
     page.add(cardGroup(settings, watch));
+    page.add(scrollGroup(settings));
     page.add(clockGroup(interfaceSettings));
     window.add(page);
     window.set_default_size(560, 720);

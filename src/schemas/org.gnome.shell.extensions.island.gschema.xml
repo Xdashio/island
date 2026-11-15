@@ -27,6 +27,11 @@
       <summary>Open the card on hover</summary>
       <description>Open the media card when the pointer rests on the cover or the meter. When off, a click opens it.</description>
     </key>
+    <key name="scroll-actions" type="b">
+      <default>true</default>
+      <summary>Scroll on the pill</summary>
+      <description>Scrolling on the cover goes to the next or previous track (or jumps ten seconds in a single video); scrolling on the meter changes the system volume.</description>
+    </key>
     <key name="hover-delay" type="i">
       <range min="0" max="1000"/>
       <default>140</default>

@@ -10,6 +10,7 @@ import { MediaCard } from './card.js';
 import { cardPosition } from './geometry.js';
 import { MediaWatcher } from './media.js';
 import { IslandPill } from './pill.js';
+import { PillScroll } from './pill-scroll.js';
 import { seekPosition } from './progress.js';
 import { ThemeOverride } from './style.js';
 import { themeCss } from './theme.js';
@@ -59,6 +60,7 @@ export class Island {
             onDragEnd: () => this._onHoverChanged(),
         });
         this._tracker = new ProgressTracker(position => this._showPosition(position));
+        this._scroll = new PillScroll(this._pill, settings, () => ({ state: this._state, client: this._client }));
 
         for (const actor of [this._pill.art, this._pill.meter, this._card.actor])
             actor.connect('notify::hover', () => this._onHoverChanged());
@@ -83,6 +85,7 @@ export class Island {
         this._clearTimer();
         this._artCancellable?.cancel();
         this._tracker.destroy();
+        this._scroll.destroy();
         this._watcher.destroy();
         this._settings.disconnectObject(this);
         this._dateMenu.menu.disconnectObject(this);

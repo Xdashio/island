@@ -42,13 +42,18 @@ const check = (name, ok) => {
 };
 
 const titles = ['Accent colour', 'Pill darkness', 'Show the cover', 'Show the level meter', 'Open on hover',
-    'Hover delay', 'Show the date', 'Show the weekday', 'Show seconds'];
+    'Hover delay', 'Scroll on the cover and the meter', 'Show the date', 'Show the weekday', 'Show seconds'];
 check('every row is on the page', titles.every(t => row(t)));
 
 settings.set_boolean('show-meter', false);
 check('a switch follows its setting', row('Show the level meter').active === false);
 row('Show the level meter').active = true;
 check('a setting follows its switch', settings.get_boolean('show-meter') === true);
+
+settings.set_boolean('scroll-actions', false);
+check('the scroll switch follows its setting', row('Scroll on the cover and the meter').active === false);
+row('Scroll on the cover and the meter').active = true;
+check('the scroll switch writes its setting', settings.get_boolean('scroll-actions') === true);
 
 row('Pill darkness').value = 80;
 check('pill darkness writes the setting', settings.get_int('pill-opacity') === 80);
