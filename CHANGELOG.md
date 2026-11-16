@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.0 (2026-11-16)
+
+- Volume and brightness changes show in the pill, in place of the clock for a moment, instead of GNOME's pop-up: an icon, a bar in the accent colour and the percent. In fullscreen, GNOME's pop-up is used, since the bar is hidden.
+- Scrolling on the meter now changes the volume through GNOME's shared sound mixer and shows the level the same way.
+- A setting to keep GNOME's pop-up instead.
+
 ## 1.3.1 (2026-11-15)
 
 - Drop `background-position: center` from the cover styles. GNOME's style engine does not support it and logged a warning each time a cover was drawn; covers stay centred, since St centres them by default.

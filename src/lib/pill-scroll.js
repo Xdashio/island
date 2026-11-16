@@ -1,8 +1,11 @@
 // Scrolling on the pill: the cover skips tracks (or jumps ten seconds in a single video), the meter
-// changes the system volume exactly like scrolling over GNOME's speaker icon, pop-up included.
+// changes the system volume through GNOME's shared mixer and shows the level like the volume keys do.
 import Clutter from 'gi://Clutter';
+import Gio from 'gi://Gio';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import * as Volume from 'resource:///org/gnome/shell/ui/status/volume.js';
 
+import { scrollVolume, volumeIconName } from './levels.js';
 import { coverAction, initialScrollState, scrollAction } from './scroll.js';
 
 const DIRECTIONS = new Map([
@@ -67,12 +70,27 @@ export class PillScroll {
         return Clutter.EVENT_STOP;
     }
 
-    // GNOME 46's volume indicator; if a future GNOME renames it, the scroll is simply not taken
+    // The same mixer GNOME's speaker icon uses; without an output device there is nothing to change
     _onMeter(event) {
-        const volume = Main.panel.statusArea.quickSettings?._volumeOutput;
-        // Without an output device GNOME hides its own speaker icon, so there is nothing to change
-        if (!this._enabled() || !volume?._output?.stream || typeof volume._handleScrollEvent !== 'function')
+        if (!this._enabled())
             return Clutter.EVENT_PROPAGATE;
-        return volume._handleScrollEvent(volume._output, event);
+        const input = scrollInput(event);
+        const control = Volume.getMixerControl();
+        const sink = control.get_default_sink();
+        if (!input || !sink)
+            return Clutter.EVENT_PROPAGATE;
+        const maxNorm = control.get_vol_max_norm();
+        const next = scrollVolume({ volume: sink.volume, maxNorm, muted: sink.is_muted }, input);
+        if (next.changed) {
+            sink.volume = next.volume;
+            if (next.muted !== sink.is_muted)
+                sink.change_is_muted(next.muted);
+            sink.push_volume();
+        }
+        // Shown in the pill, or as GNOME's pop-up when that setting is off or the bar is hidden
+        const level = next.muted ? 0 : next.volume / maxNorm;
+        const icon = new Gio.ThemedIcon({ name: volumeIconName(next.volume, maxNorm, next.muted) });
+        Main.osdWindowManager.show(-1, icon, null, level, Math.max(1, level));
+        return Clutter.EVENT_STOP;
     }
 }

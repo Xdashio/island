@@ -6,6 +6,7 @@ import Graphene from 'gi://Graphene';
 import St from 'gi://St';
 
 import { nextLevels } from './geometry.js';
+import { LevelView } from './level-view.js';
 
 const BAR_COUNT = 3;
 // The meter steps a few times a second instead of animating every frame: cheap on Intel HD 3000.
@@ -92,6 +93,9 @@ export class IslandPill {
         this.actor.add_child(this.art);
         this.actor.add_child(this._clockBox);
         this.actor.add_child(this.meter);
+        // Volume and brightness changes take the clock's place for a moment
+        this._level = new LevelView();
+        this.actor.insert_child_above(this._level.actor, this._clockBox);
         dateMenu.add_child(this.actor);
 
         this._indicatorId = this._indicator.connect('notify::icon-name', () => this._syncIndicator());
@@ -105,6 +109,7 @@ export class IslandPill {
         this._indicator.disconnect(this._indicatorId);
         this._indicator.remove_style_class_name('xi-dnd');
         // Take the clock out first: destroying the pill would destroy it too
+        this._clockBox.show();
         this.actor.remove_child(this._clockBox);
         if (this._pad)
             this._clockBox.insert_child_at_index(this._pad, 0);
@@ -123,6 +128,23 @@ export class IslandPill {
         this._toggleClass(this.actor, 'xi-has-cover', this.art.visible);
         this._toggleClass(this.actor, 'xi-paused', hasMedia && !state.playing);
         this._syncMeter();
+    }
+
+    /** Shows a volume or brightness level ({icon, level, maxLevel}) in place of the clock. */
+    showLevel(info) {
+        // Measured while the clock is still showing; repeated key presses reuse it
+        if (this._clockBox.visible)
+            this._levelWidth = this._clockBox.width;
+        if (!this._level.set(info, this._levelWidth))
+            return false;
+        this._clockBox.hide();
+        this._level.actor.show();
+        return true;
+    }
+
+    hideLevel() {
+        this._level.actor.hide();
+        this._clockBox.show();
     }
 
     /** Which media parts the settings allow: {cover, meter}. */

@@ -102,6 +102,13 @@ function scrollGroup(settings) {
     return group;
 }
 
+function levelsGroup(settings) {
+    const group = new Adw.PreferencesGroup({ title: 'Volume and brightness' });
+    group.add(switchRow(settings, 'levels-in-pill', 'Show changes in the pill',
+        'Instead of GNOME\'s pop-up, while the top bar is on screen'));
+    return group;
+}
+
 function clockGroup(interfaceSettings) {
     const group = new Adw.PreferencesGroup({
         title: 'Clock',
@@ -132,6 +139,7 @@ export function buildPreferences(window, settings, interfaceSettings) {
     page.add(lookGroup(settings, watch));
     page.add(cardGroup(settings, watch));
     page.add(scrollGroup(settings));
+    page.add(levelsGroup(settings));
     page.add(clockGroup(interfaceSettings));
     window.add(page);
     window.set_default_size(560, 720);

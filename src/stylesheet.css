@@ -72,6 +72,39 @@
   color: #7aa2f7;
 }
 
+/* Volume and brightness, shown in place of the clock for a moment */
+.xi-level {
+  spacing: 8px;
+}
+
+.xi-level-icon {
+  icon-size: 14px;
+  color: #c0caf5;
+}
+
+/* The bar's width is set in lib/level-view.js so the level view matches the clock's width */
+.xi-level-bar {
+  height: 4px;
+  border-radius: 2px;
+  background-color: rgba(192, 202, 245, 0.18);
+}
+
+.xi-level-fill {
+  height: 4px;
+  border-radius: 2px;
+  background-color: #7aa2f7;
+}
+
+.xi-level-value {
+  min-width: 26px;
+}
+
+.xi-level-percent {
+  color: #c0caf5;
+  font-size: 8.5pt;
+  font-feature-settings: "tnum";
+}
+
 /* Level meter */
 .xi-meter-button {
   padding: 0 1px;

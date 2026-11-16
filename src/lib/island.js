@@ -9,6 +9,7 @@ import { loadArt } from './art.js';
 import { MediaCard } from './card.js';
 import { cardPosition } from './geometry.js';
 import { MediaWatcher } from './media.js';
+import { OsdBridge } from './osd.js';
 import { IslandPill } from './pill.js';
 import { PillScroll } from './pill-scroll.js';
 import { seekPosition } from './progress.js';
@@ -18,6 +19,8 @@ import { ProgressTracker } from './tracker.js';
 
 // Hover intent: a short exit does not close the card. The open delay is a setting (hover-delay).
 const CLOSE_DELAY_MS = 260;
+// How long a volume or brightness change stays in the pill after the last key press or scroll
+const LEVEL_SHOW_MS = 1500;
 
 // Browsers send no DesktopEntry, so their app is found by the player's name ("Brave")
 function resolveApp(desktopEntry, identity) {
@@ -43,6 +46,7 @@ export class Island {
         this._artFallback = null;
         this._artCancellable = null;
         this._timerId = 0;
+        this._levelTimerId = 0;
         this._trackKey = null;
 
         this._pill = new IslandPill(dateMenu);
@@ -61,6 +65,7 @@ export class Island {
         });
         this._tracker = new ProgressTracker(position => this._showPosition(position));
         this._scroll = new PillScroll(this._pill, settings, () => ({ state: this._state, client: this._client }));
+        this._osd = new OsdBridge(() => settings.get_boolean('levels-in-pill'), info => this._showLevel(info));
 
         for (const actor of [this._pill.art, this._pill.meter, this._card.actor])
             actor.connect('notify::hover', () => this._onHoverChanged());
@@ -82,6 +87,11 @@ export class Island {
     }
 
     destroy() {
+        // GNOME's own pop-ups come back first
+        this._osd.destroy();
+        if (this._levelTimerId)
+            GLib.source_remove(this._levelTimerId);
+        this._levelTimerId = 0;
         this._clearTimer();
         this._artCancellable?.cancel();
         this._tracker.destroy();
@@ -158,6 +168,18 @@ export class Island {
         loadArt(url, cancellable, uri => {
             this._pill.cover.set(uri, fallbackGicon);
             this._card.cover.set(uri, fallbackGicon);
+        });
+    }
+
+    _showLevel(info) {
+        if (!this._pill.showLevel(info))
+            return;
+        if (this._levelTimerId)
+            GLib.source_remove(this._levelTimerId);
+        this._levelTimerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, LEVEL_SHOW_MS, () => {
+            this._levelTimerId = 0;
+            this._pill.hideLevel();
+            return GLib.SOURCE_REMOVE;
         });
     }
 

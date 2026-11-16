@@ -32,6 +32,11 @@
       <summary>Scroll on the pill</summary>
       <description>Scrolling on the cover goes to the next or previous track (or jumps ten seconds in a single video); scrolling on the meter changes the system volume.</description>
     </key>
+    <key name="levels-in-pill" type="b">
+      <default>true</default>
+      <summary>Show volume and brightness in the pill</summary>
+      <description>Show volume and brightness changes in the pill instead of GNOME's pop-up while the top bar is on screen. In fullscreen GNOME's pop-up is used.</description>
+    </key>
     <key name="hover-delay" type="i">
       <range min="0" max="1000"/>
       <default>140</default>
