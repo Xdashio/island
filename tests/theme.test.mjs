@@ -68,6 +68,7 @@ describe('themeCss', () => {
         assert.match(css, /\.xi-card-app \{[^}]*color: #bb9af7;/);
         assert.match(css, /\.slider\.xi-card-slider \{[^}]*-barlevel-active-background-color: #bb9af7;/);
         assert.match(css, /\.xi-level-fill \{[^}]*background-color: #bb9af7;/);
+        assert.match(css, /\.xi-peek-icon \{[^}]*color: #bb9af7;/);
         assert.match(css, /\.xi-control\.xi-control-play \{[^}]*rgba\(187, 154, 247, 0\.16\)/);
         assert.doesNotMatch(css, /122, 162, 247/);
     });

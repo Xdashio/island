@@ -105,6 +105,27 @@
   font-feature-settings: "tnum";
 }
 
+/* A new notification, shown in place of the clock for a moment */
+.xi-peek {
+  spacing: 8px;
+  max-width: 320px;
+}
+
+.xi-peek-icon {
+  icon-size: 14px; /* symbolic icons take the accent; app icons keep their colours */
+  color: #7aa2f7;
+}
+
+.xi-peek-title {
+  color: #c0caf5;
+  font-weight: bold;
+  max-width: 150px;
+}
+
+.xi-peek-body {
+  color: rgba(169, 177, 214, 0.85);
+}
+
 /* Level meter */
 .xi-meter-button {
   padding: 0 1px;

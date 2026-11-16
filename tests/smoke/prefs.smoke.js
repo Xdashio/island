@@ -42,7 +42,7 @@ const check = (name, ok) => {
 };
 
 const titles = ['Accent colour', 'Pill darkness', 'Show the cover', 'Show the level meter', 'Open on hover',
-    'Hover delay', 'Scroll on the cover and the meter', 'Show changes in the pill',
+    'Hover delay', 'Scroll on the cover and the meter', 'Show changes in the pill', 'Show new notifications',
     'Show the date', 'Show the weekday', 'Show seconds'];
 check('every row is on the page', titles.every(t => row(t)));
 
@@ -60,6 +60,12 @@ settings.set_boolean('levels-in-pill', false);
 check('the level switch follows its setting', row('Show changes in the pill').active === false);
 row('Show changes in the pill').active = true;
 check('the level switch writes its setting', settings.get_boolean('levels-in-pill') === true);
+
+check('the notification choice starts at the pill', row('Show new notifications').selected === 0);
+settings.set_string('notification-peek', 'off');
+check('the notification choice follows its setting', row('Show new notifications').selected === 2);
+row('Show new notifications').selected = 1;
+check('the notification choice writes its setting', settings.get_string('notification-peek') === 'with-banner');
 
 row('Pill darkness').value = 80;
 check('pill darkness writes the setting', settings.get_int('pill-opacity') === 80);

@@ -12,6 +12,7 @@ It is tuned for the WhiteSur shell theme (28 px bar) and for low-end graphics su
 - **Media card.** Hover over the cover or the meter to drop a card with the cover, title, artist, app, a progress bar with elapsed and remaining time, and previous, play or pause, and next buttons. Drag or click the bar to jump; arrow keys and scrolling on it work too.
 - **Notifications.** GNOME's indicator stays inside the pill: unread notifications show in the accent colour, Do Not Disturb shows a grey bell.
 - **Volume and brightness.** The volume and brightness keys show their level in the pill, in place of the clock, for a moment, instead of GNOME's pop-up. In fullscreen, when the bar is hidden, GNOME's pop-up is used.
+- **Notification peek.** A new notification stretches the pill for a few seconds to show the app's icon, the title and the first line, instead of GNOME's banner. Click it to open the notification list. Critical notifications keep GNOME's banner too, and Do Not Disturb keeps the pill quiet.
 - **Settings panel.** Accent colour, pill darkness, which parts show, how the card opens, and GNOME's clock options in one place.
 
 | On the cover or meter | Does |
@@ -69,6 +70,7 @@ gnome-extensions prefs island@xdashio
 | Hover delay | 140 ms | How long the pointer rests before the card opens. |
 | Scroll on the cover and the meter | On | Track skips on the cover, system volume on the meter. |
 | Show changes in the pill | On | Volume and brightness levels in the pill instead of GNOME's pop-up. |
+| Show new notifications | In the pill, instead of the banner | Or in the pill and as a banner, or as a banner only. |
 | Show the date, weekday, seconds | GNOME's | GNOME's own clock options, the same ones as in GNOME Settings. |
 
 Changes apply straight away, without reloading the shell.
@@ -111,6 +113,9 @@ src/
   lib/pill-scroll.js  scrolling on the cover and the meter
   lib/osd.js          sends GNOME's volume and brightness pop-ups to the pill
   lib/level-view.js   the level bar shown in place of the clock
+  lib/notifications.js sends new notifications to the pill
+  lib/peek-view.js    the notification shown in place of the clock
+  lib/overlays.js     times the level and notification takeovers
   lib/pick.js         which player to show (pure)
   lib/track.js        what to show for a player (pure)
   lib/geometry.js     card placement, meter levels, image checks (pure)
@@ -118,6 +123,7 @@ src/
   lib/progress.js     time labels, bar position and seek targets (pure)
   lib/scroll.js       one skip per scroll gesture, wheel or touchpad (pure)
   lib/levels.js       level bar, volume steps and icons, which pop-ups to take (pure)
+  lib/peek.js         where a notification shows, and its one line of text (pure)
   lib/style.js        loads that override into the shell's theme
   lib/prefs-page.js   the settings page, built so it can be tested outside the Extensions app
 tests/                node --test unit tests for the pure modules
@@ -134,7 +140,7 @@ npm run pack       # build dist/island@xdashio.shell-extension.zip
 
 GitHub Actions runs all of these except `pack` on every push.
 
-The pill relies on two private fields of GNOME 46's date menu (`_clockDisplay` and `_indicator`). If a future GNOME changes them, the extension leaves the bar alone and logs a warning instead of breaking it. Volume scrolling uses GNOME's shared mixer (`getMixerControl()` from `ui/status/volume.js`). Pop-ups are taken over with GNOME's `InjectionManager`, which puts `osdWindowManager.show` back exactly when the extension is turned off.
+The pill relies on two private fields of GNOME 46's date menu (`_clockDisplay` and `_indicator`). If a future GNOME changes them, the extension leaves the bar alone and logs a warning instead of breaking it. Volume scrolling uses GNOME's shared mixer (`getMixerControl()` from `ui/status/volume.js`). Pop-ups and banners are taken over with GNOME's `InjectionManager` (`osdWindowManager.show` and `messageTray._showNotification`), and both are put back exactly when the extension is turned off.
 
 ## Credits
 

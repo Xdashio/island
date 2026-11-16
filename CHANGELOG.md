@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.5.0 (2026-11-16)
+
+- Notification peek: a new notification shows in the pill for four seconds (app icon, title and first line) instead of GNOME's banner. Click it to open the notification list.
+- It follows GNOME's own rules: nothing in Do Not Disturb or for low urgency, GNOME's banner in fullscreen, and critical notifications keep the banner as well.
+- A setting to show notifications in the pill and as a banner, or as a banner only.
+
 ## 1.4.0 (2026-11-16)
 
 - Volume and brightness changes show in the pill, in place of the clock for a moment, instead of GNOME's pop-up: an icon, a bar in the accent colour and the percent. In fullscreen, GNOME's pop-up is used, since the bar is hidden.

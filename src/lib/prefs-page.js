@@ -5,6 +5,7 @@ import Gdk from 'gi://Gdk';
 import Gio from 'gi://Gio';
 import Gtk from 'gi://Gtk';
 
+import { PEEK_MODES } from './peek.js';
 import { DEFAULT_ACCENT, MAX_PILL_OPACITY, MIN_PILL_OPACITY, normalizeHex, rgbaToHex } from './theme.js';
 
 export const INTERFACE_SCHEMA = 'org.gnome.desktop.interface';
@@ -109,6 +110,29 @@ function levelsGroup(settings) {
     return group;
 }
 
+// Labels in the order of PEEK_MODES
+const PEEK_LABELS = ['In the pill, instead of the banner', 'In the pill and as a banner', 'As a banner only'];
+
+function notificationsGroup(settings, watch) {
+    const group = new Adw.PreferencesGroup({
+        title: 'Notifications',
+        description: 'Click the pill while a notification shows to open the list. Critical notifications always keep GNOME\'s banner, and Do Not Disturb keeps the pill quiet too.',
+    });
+    const row = new Adw.ComboRow({ title: 'Show new notifications', model: Gtk.StringList.new(PEEK_LABELS) });
+    const fromSettings = () => {
+        row.selected = Math.max(0, PEEK_MODES.indexOf(settings.get_string('notification-peek')));
+    };
+    row.connect('notify::selected', () => {
+        const mode = PEEK_MODES[row.selected];
+        if (mode && mode !== settings.get_string('notification-peek'))
+            settings.set_string('notification-peek', mode);
+    });
+    watch(settings, 'changed::notification-peek', fromSettings);
+    fromSettings();
+    group.add(row);
+    return group;
+}
+
 function clockGroup(interfaceSettings) {
     const group = new Adw.PreferencesGroup({
         title: 'Clock',
@@ -140,6 +164,7 @@ export function buildPreferences(window, settings, interfaceSettings) {
     page.add(cardGroup(settings, watch));
     page.add(scrollGroup(settings));
     page.add(levelsGroup(settings));
+    page.add(notificationsGroup(settings, watch));
     page.add(clockGroup(interfaceSettings));
     window.add(page);
     window.set_default_size(560, 720);

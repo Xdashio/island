@@ -9,7 +9,7 @@ import { loadArt } from './art.js';
 import { MediaCard } from './card.js';
 import { cardPosition } from './geometry.js';
 import { MediaWatcher } from './media.js';
-import { OsdBridge } from './osd.js';
+import { Overlays } from './overlays.js';
 import { IslandPill } from './pill.js';
 import { PillScroll } from './pill-scroll.js';
 import { seekPosition } from './progress.js';
@@ -19,8 +19,6 @@ import { ProgressTracker } from './tracker.js';
 
 // Hover intent: a short exit does not close the card. The open delay is a setting (hover-delay).
 const CLOSE_DELAY_MS = 260;
-// How long a volume or brightness change stays in the pill after the last key press or scroll
-const LEVEL_SHOW_MS = 1500;
 
 // Browsers send no DesktopEntry, so their app is found by the player's name ("Brave")
 function resolveApp(desktopEntry, identity) {
@@ -46,7 +44,6 @@ export class Island {
         this._artFallback = null;
         this._artCancellable = null;
         this._timerId = 0;
-        this._levelTimerId = 0;
         this._trackKey = null;
 
         this._pill = new IslandPill(dateMenu);
@@ -65,16 +62,18 @@ export class Island {
         });
         this._tracker = new ProgressTracker(position => this._showPosition(position));
         this._scroll = new PillScroll(this._pill, settings, () => ({ state: this._state, client: this._client }));
-        this._osd = new OsdBridge(() => settings.get_boolean('levels-in-pill'), info => this._showLevel(info));
+        this._overlays = new Overlays(this._pill, settings, () => dateMenu.menu.isOpen);
 
         for (const actor of [this._pill.art, this._pill.meter, this._card.actor])
             actor.connect('notify::hover', () => this._onHoverChanged());
         for (const button of [this._pill.art, this._pill.meter])
             button.connect('clicked', (_button, clickedButton) => this._onPillClicked(clickedButton));
-        // The calendar and the card would overlap
+        // The calendar and the card would overlap; a peek is done once its list is open
         dateMenu.menu.connectObject('open-state-changed', (_menu, open) => {
-            if (open)
-                this._closeCard();
+            if (!open)
+                return;
+            this._closeCard();
+            this._overlays.dismiss();
         }, this);
         Main.overview.connectObject('showing', () => this._closeCard(), this);
         settings.connectObject('changed', (_settings, key) => this._onSettingChanged(key), this);
@@ -87,11 +86,8 @@ export class Island {
     }
 
     destroy() {
-        // GNOME's own pop-ups come back first
-        this._osd.destroy();
-        if (this._levelTimerId)
-            GLib.source_remove(this._levelTimerId);
-        this._levelTimerId = 0;
+        // GNOME's own pop-ups and banners come back first
+        this._overlays.destroy();
         this._clearTimer();
         this._artCancellable?.cancel();
         this._tracker.destroy();
@@ -168,18 +164,6 @@ export class Island {
         loadArt(url, cancellable, uri => {
             this._pill.cover.set(uri, fallbackGicon);
             this._card.cover.set(uri, fallbackGicon);
-        });
-    }
-
-    _showLevel(info) {
-        if (!this._pill.showLevel(info))
-            return;
-        if (this._levelTimerId)
-            GLib.source_remove(this._levelTimerId);
-        this._levelTimerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, LEVEL_SHOW_MS, () => {
-            this._levelTimerId = 0;
-            this._pill.hideLevel();
-            return GLib.SOURCE_REMOVE;
         });
     }
 

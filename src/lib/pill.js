@@ -7,6 +7,7 @@ import St from 'gi://St';
 
 import { nextLevels } from './geometry.js';
 import { LevelView } from './level-view.js';
+import { PeekView } from './peek-view.js';
 
 const BAR_COUNT = 3;
 // The meter steps a few times a second instead of animating every frame: cheap on Intel HD 3000.
@@ -93,9 +94,13 @@ export class IslandPill {
         this.actor.add_child(this.art);
         this.actor.add_child(this._clockBox);
         this.actor.add_child(this.meter);
-        // Volume and brightness changes take the clock's place for a moment
+        // Volume and brightness changes and new notifications take the clock's place for a moment
         this._level = new LevelView();
+        this._peek = new PeekView();
+        this._overlays = [this._level.actor, this._peek.actor];
         this.actor.insert_child_above(this._level.actor, this._clockBox);
+        this.actor.insert_child_above(this._peek.actor, this._level.actor);
+        this._clockWidth = 0;
         dateMenu.add_child(this.actor);
 
         this._indicatorId = this._indicator.connect('notify::icon-name', () => this._syncIndicator());
@@ -132,19 +137,36 @@ export class IslandPill {
 
     /** Shows a volume or brightness level ({icon, level, maxLevel}) in place of the clock. */
     showLevel(info) {
-        // Measured while the clock is still showing; repeated key presses reuse it
-        if (this._clockBox.visible)
-            this._levelWidth = this._clockBox.width;
-        if (!this._level.set(info, this._levelWidth))
+        this._measureClock();
+        if (!this._level.set(info, this._clockWidth))
             return false;
-        this._clockBox.hide();
-        this._level.actor.show();
+        this._showOverlay(this._level.actor);
         return true;
     }
 
-    hideLevel() {
-        this._level.actor.hide();
+    /** Shows a notification ({gicon, title, body}) in place of the clock; a click opens the list. */
+    showPeek(info) {
+        this._measureClock();
+        this._peek.set(info, this._clockWidth);
+        this._showOverlay(this._peek.actor);
+    }
+
+    hideOverlay() {
+        this._overlays.forEach(actor => actor.hide());
         this._clockBox.show();
+    }
+
+    // Measured while the clock is still showing; an overlay replacing another reuses it
+    _measureClock() {
+        if (this._clockBox.visible)
+            this._clockWidth = this._clockBox.width;
+    }
+
+    _showOverlay(shown) {
+        this._clockBox.hide();
+        this._overlays.forEach(actor => {
+            actor.visible = actor === shown;
+        });
     }
 
     /** Which media parts the settings allow: {cover, meter}. */

@@ -37,6 +37,16 @@
       <summary>Show volume and brightness in the pill</summary>
       <description>Show volume and brightness changes in the pill instead of GNOME's pop-up while the top bar is on screen. In fullscreen GNOME's pop-up is used.</description>
     </key>
+    <key name="notification-peek" type="s">
+      <choices>
+        <choice value="instead"/>
+        <choice value="with-banner"/>
+        <choice value="off"/>
+      </choices>
+      <default>'instead'</default>
+      <summary>Show new notifications in the pill</summary>
+      <description>instead: in the pill rather than GNOME's banner (critical ones keep the banner); with-banner: in the pill and as GNOME's banner; off: GNOME's banner only.</description>
+    </key>
     <key name="hover-delay" type="i">
       <range min="0" max="1000"/>
       <default>140</default>
